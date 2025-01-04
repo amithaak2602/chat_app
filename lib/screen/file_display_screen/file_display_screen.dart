@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class FileDisplayScreen extends StatefulWidget {
-  const FileDisplayScreen({Key? key}) : super(key: key);
+  const FileDisplayScreen({super.key});
 
   @override
   State<FileDisplayScreen> createState() => _FileDisplayScreenState();
