@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:talk_nest/screen/file_display_screen/file_display_screen.dart';
 
 class ChatInputField extends StatefulWidget {
    const ChatInputField({super.key});
@@ -59,6 +60,9 @@ File?_displayFile;
                             final fileName = result.files.first.toString();
                             _pickedFile=result.files.first;
                             _displayFile = File(_pickedFile!.path.toString());
+                            Navigator.push(context, MaterialPageRoute(builder: (context){
+                              return FileDisplayScreen(file: _displayFile!,platformFile: _pickedFile!,);
+                            }));
                           }
                         },
                       )),

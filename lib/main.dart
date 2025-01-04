@@ -5,6 +5,7 @@ import 'package:talk_nest/screen/home_screen/home_screen.dart';
 import 'package:talk_nest/screen/login/login_screen.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 

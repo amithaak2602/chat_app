@@ -61,7 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   spacing: 2.h,
                   children: [
-                    //ChatStatusFilter(),
+                    ChatStatusFilter(),
                     OrderChat(),
 
                   ],
