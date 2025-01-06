@@ -38,10 +38,21 @@ dependencies:
   shared_preferences: ^2.3.5
   file_picker: ^8.1.7
   syncfusion_flutter_pdfviewer: ^28.1.37
+  record: ^5.2.0
+  permission_handler: ^10.2.0
+  audio_waveforms: ^1.2.0
+  audioplayers: ^6.1.0
+  path_provider: ^2.1.5
+  path: ^1.9.0
+  get: ^4.6.6
+  lottie: ^3.3.0
+  intl: ^0.18.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  injectable_generator:
+  build_runner:
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -62,8 +73,8 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
+  assets:
+     - assets/lottie/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

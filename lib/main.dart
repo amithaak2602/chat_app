@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:talk_nest/screen/home_screen/home_screen.dart';
 import 'package:talk_nest/screen/login/login_screen.dart';
 
-void main() {
+void main()  async{
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
@@ -41,7 +41,9 @@ class _MyAppState extends State<MyApp> {
       return MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.grey.shade200,
+          ),
           useMaterial3: true,
         ),
         home: isLoggedIn ? HomeScreen() : LoginScreen(),

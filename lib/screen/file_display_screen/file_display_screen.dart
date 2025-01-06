@@ -20,52 +20,72 @@ class _FileDisplayScreenState extends State<FileDisplayScreen> {
     return Scaffold(
       backgroundColor: Colors.grey.shade200,
       body: SafeArea(
-          child: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              GestureDetector(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: CircleAvatar(
-                    radius: 17.sp,
-                    backgroundColor: Colors.grey.shade400,
-                    child: Icon(
-                      Icons.clear,
-                      size: 18.sp,
+          child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    GestureDetector(
+                      child: Padding(
+                        padding: EdgeInsets.only(right: 3.w, top: 2.h),
+                        child: Icon(
+                          Icons.delete_outlined,
+                          size: 21.sp,
+                        ),
+                      ),
+                      onTap: () {
+                        widget.file.delete();
+                        Navigator.pop(context);
+                      },
                     ),
-                  ),
+                  ],
                 ),
-                onTap: () {
-                  Navigator.pop(context);
-                },
-              ),
-              widget.platformFile.extension.toString().toLowerCase() == "pdf"
-                  ? SizedBox(
-                      width: MediaQuery.of(context).size.width,
-                      height: 600,
-                      child: SfPdfViewer.file(File(widget.file.path)))
-                  : SizedBox(
-                      width: MediaQuery.of(context).size.width,
-                      height: 600,
-                      child: Image.file(widget.file),
-                    ),
-            ],
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: CircleAvatar(
-              radius: 18.sp,
-              backgroundColor: Colors.grey.shade400,
-              child: Icon(
-                Icons.send,
-                size: 18.sp,
+                widget.platformFile.extension.toString().toLowerCase() == "pdf"
+                    ? Padding(
+                        padding: EdgeInsets.only(top: 5.h),
+                        child: SizedBox(
+                            width: MediaQuery.of(context).size.width,
+                            height: 500,
+                            child: SfPdfViewer.file(
+                              File(widget.file.path),
+                              canShowScrollHead: false,
+                              interactionMode: PdfInteractionMode.pan,
+                              pageSpacing: 0,
+                              pageLayoutMode: PdfPageLayoutMode.single,
+                              enableDoubleTapZooming: false,
+                            )),
+                      )
+                    : Padding(
+                        padding: EdgeInsets.only(top: 5.h),
+                        child: SizedBox(
+                          width: MediaQuery.of(context).size.width,
+                          height: 500,
+                          child: Image.file(
+                            widget.file,
+                            fit: BoxFit.fitWidth,
+                          ),
+                        ),
+                      ),
+              ],
+            ),
+            Padding(
+              padding: EdgeInsets.only(right: 3.w, top: 5.h),
+              child: CircleAvatar(
+                radius: 18.sp,
+                backgroundColor: Colors.grey.shade400,
+                child: Icon(
+                  Icons.send,
+                  size: 18.sp,
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       )),
     );
   }
