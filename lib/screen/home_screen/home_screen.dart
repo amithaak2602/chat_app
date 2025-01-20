@@ -1,12 +1,15 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:talk_nest/screen/file_display_screen/file_display_screen.dart';
 import 'package:talk_nest/screen/home_screen/chat_input_field.dart';
 import 'package:talk_nest/screen/home_screen/widget/chat_status_filter.dart';
+import 'package:talk_nest/screen/home_screen/widget/display_image.dart';
 import 'package:talk_nest/screen/home_screen/widget/order_chat.dart';
 import 'package:talk_nest/service/getx.dart';
 import 'package:talk_nest/service/shared.dart';
@@ -42,17 +45,11 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     loadMessage();
-    for (int i = 0; i < messageController.messageList.length; i++) {
-      final player = AudioPlayer();
-      _audioPlayers.add(player);
-      _setupAudioPlayerListeners(player, i);
-    }
   }
 
   loadMessage() async {
     final prefs =
         Shared(sharedPreferences: await SharedPreferences.getInstance());
-    print(prefs.message.length);
     messageController.messageList.addAll(prefs.message);
     messageController.setAudioPlayers();
   }
@@ -82,6 +79,15 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   @override
+  void dispose() {
+    _durationSubscription?.cancel();
+    _positionSubscription?.cancel();
+    _playerCompleteSubscription?.cancel();
+    _playerStateChangeSubscription?.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
@@ -91,7 +97,11 @@ class _HomeScreenState extends State<HomeScreen> {
         title: Row(
           children: [
             Icon(Icons.arrow_back_ios, size: 20.sp),
-            CircleAvatar(backgroundColor: Colors.blue, radius: 18.sp),
+            CircleAvatar(
+              backgroundColor: Colors.transparent,
+              radius: 18.sp,
+backgroundImage: AssetImage("assets/image/user.png"),
+            ),
             SizedBox(width: 2.w),
             Text("Michale Knight",
                 style: TextStyle(
@@ -137,118 +147,199 @@ class _HomeScreenState extends State<HomeScreen> {
                                     "");
                             formattedTime = DateFormat('hh:mm a').format(date);
                           }
-                          return Container(
-                            // width: 20.w,
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 2.w,
-                            ),
-                            margin: EdgeInsets.only(
-                                left: 30.w, top: 2.h, right: 2.w),
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
-                                color: Colors.blue.shade50),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Row(
-                                  children: [
-                                    GestureDetector(
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                            color: Colors.grey.shade200,
-                                            borderRadius:
-                                                BorderRadius.circular(12)),
-                                        padding: EdgeInsets.all(10.sp),
-                                        child: Center(
-                                          child:
-                                              playAudio && currentIndex == index
-                                                  ? Icon(Icons.pause,
-                                                      color: Colors.black)
-                                                  : Icon(Icons.play_arrow,
-                                                      color: Colors.black),
-                                        ),
-                                      ),
-                                      onTap: () async {
-                                        setState(() {
-                                          playAudio = !playAudio;
-                                          currentIndex = index;
-                                        });
-                                        if (playAudio) {
-                                          _setupAudioPlayerListeners(
-                                              messageController
-                                                  .audioPlayers[index],
-                                              index);
-                                          await messageController
-                                              .audioPlayers[index]
-                                              .play(DeviceFileSource(
-                                                  message.filePath.toString()));
-                                        } else {
-                                          await messageController
-                                              .audioPlayers[index]
-                                              .pause();
-                                        }
-                                      },
-                                    ),
-                                    Slider(
-                                      onChanged: (value) {
-                                        if (duration == Duration.zero) return;
-                                        final newPosition =
-                                            value * duration.inMilliseconds;
-                                        _audioPlayers[index].seek(Duration(
-                                            milliseconds: newPosition.round()));
-                                      },
-                                      activeColor: Colors.blue,
-                                      value: (position.inMilliseconds > 0 &&
-                                              position.inMilliseconds <
-                                                  duration.inMilliseconds)
-                                          ? position.inMilliseconds /
-                                              duration.inMilliseconds
-                                          : 0.0,
-                                    ),
-                                  ],
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.only(bottom: 2.0),
-                                  child: Row(
+                          return messageController.messageList[index].type
+                                      .toString() ==
+                                  "mp3"
+                              ? Container(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 2.w,
+                                  ),
+                                  margin: EdgeInsets.only(
+                                      left: 30.w, top: 2.h, right: 2.w),
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(8),
+                                      color: Colors.blue.shade50),
+                                  child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.center,
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
+                                    mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      SizedBox(
-                                        width: 1.w,
-                                      ),
-                                      Text(
-                                        currentIndex == index
-                                            ? _position != null
-                                                ? _positionText
-                                                : _duration != null
-                                                    ? _durationText
-                                                    : ''
-                                            : "",
-                                        style: TextStyle(fontSize: 13.sp),
-                                      ),
                                       Row(
-                                        spacing: 1.w,
                                         children: [
-                                          Text(
-                                            formattedTime,
-                                            style: TextStyle(fontSize: 13.sp),
+                                          GestureDetector(
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                  color: Colors.grey.shade200,
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          12)),
+                                              padding: EdgeInsets.all(10.sp),
+                                              child: Center(
+                                                child: playAudio &&
+                                                        currentIndex == index
+                                                    ? Icon(Icons.pause,
+                                                        color: Colors.black)
+                                                    : Icon(Icons.play_arrow,
+                                                        color: Colors.black),
+                                              ),
+                                            ),
+                                            onTap: () async {
+                                              setState(() {
+                                                playAudio = !playAudio;
+                                                currentIndex = index;
+                                              });
+                                              if (playAudio) {
+                                                _setupAudioPlayerListeners(
+                                                    messageController
+                                                        .audioPlayers[index],
+                                                    index);
+                                                await messageController
+                                                    .audioPlayers[index]
+                                                    .play(DeviceFileSource(
+                                                        message.filePath
+                                                            .toString()));
+                                              } else {
+                                                await messageController
+                                                    .audioPlayers[index]
+                                                    .pause();
+                                              }
+                                            },
                                           ),
-                                          Icon(
-                                            Icons.done_all,
-                                            size: 16.0,
-                                            color: Colors.grey,
-                                          )
+                                          Slider(
+                                            onChanged: (value) {
+                                              if (duration == Duration.zero)
+                                                return;
+                                              final newPosition = value *
+                                                  duration.inMilliseconds;
+                                              _audioPlayers[index].seek(
+                                                  Duration(
+                                                      milliseconds:
+                                                          newPosition.round()));
+                                            },
+                                            activeColor: Colors.blue,
+                                            value: (position.inMilliseconds >
+                                                        0 &&
+                                                    position.inMilliseconds <
+                                                        duration.inMilliseconds)
+                                                ? position.inMilliseconds /
+                                                    duration.inMilliseconds
+                                                : 0.0,
+                                          ),
                                         ],
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.only(bottom: 2.0),
+                                        child: Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceEvenly,
+                                          children: [
+                                            SizedBox(
+                                              width: 1.w,
+                                            ),
+                                            Text(
+                                              currentIndex == index
+                                                  ? _position != null
+                                                      ? _positionText
+                                                      : _duration != null
+                                                          ? _durationText
+                                                          : ''
+                                                  : "",
+                                              style: TextStyle(fontSize: 13.sp),
+                                            ),
+                                            Row(
+                                              spacing: 1.w,
+                                              children: [
+                                                Text(
+                                                  formattedTime,
+                                                  style: TextStyle(
+                                                      fontSize: 13.sp),
+                                                ),
+                                                Icon(
+                                                  Icons.done_all,
+                                                  size: 16.0,
+                                                  color: Colors.grey,
+                                                )
+                                              ],
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ],
                                   ),
-                                ),
-                              ],
-                            ),
-                          );
+                                )
+                              : messageController.messageList[index].type
+                                          .toString() ==
+                                      "png"
+                                  ? GestureDetector(
+                                      child: Container(
+                                        // width: 20.w,
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 2.w, vertical: 1.h),
+                                        margin: EdgeInsets.only(
+                                            left: 30.w, top: 2.h, right: 2.w),
+                                        decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                            color: Colors.blue.shade50),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Text(
+                                                  "Photo.png",
+                                                  style: TextStyle(
+                                                      fontSize: 15.sp),
+                                                ),
+                                                Icon(
+                                                  Icons.download,
+                                                  size: 16.0,
+                                                  color: Colors.grey,
+                                                ),
+                                              ],
+                                            ),
+                                            SizedBox(height: 0.9.h),
+                                            Row(
+                                              spacing: 1.w,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.end,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.end,
+                                              children: [
+                                                Text(
+                                                  formattedTime,
+                                                  style: TextStyle(
+                                                      fontSize: 13.sp),
+                                                ),
+                                                Icon(
+                                                  Icons.done_all,
+                                                  size: 16.0,
+                                                  color: Colors.grey,
+                                                )
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      onTap: () {
+                                        Navigator.push(context,
+                                            MaterialPageRoute(
+                                                builder: (context) {
+                                          return ImagePreviewScreen(
+                                            file: File(messageController
+                                                .messageList[index].filePath
+                                                .toString()),
+                                          );
+                                        }));
+                                      },
+                                    )
+                                  : Container();
                         },
                       ),
                     ],

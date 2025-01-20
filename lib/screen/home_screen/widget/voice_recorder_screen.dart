@@ -41,23 +41,7 @@ class _VoiceRecorderUIState extends State<VoiceRecorderUI> {
     super.initState();
   }
 
-  // Future<void> _startRecording() async {
-  //   if (await Permission.microphone.request().isGranted) {
-  //     final Directory appDocumentsDir =
-  //         await getApplicationDocumentsDirectory();
-  //     final filePath = p.join(appDocumentsDir.path,
-  //         "${DateTime.now().millisecondsSinceEpoch}recording.wav");
-  //     await _record.start(const RecordConfig(), path: filePath);
-  //     _startTimer();
-  //     setState(() {
-  //       _isRecording = true;
-  //       _filePath = null;
-  //     });
-  //   } else {
-  //     print('Microphone permission denied');
-  //   }
-  // }
-  Future<void> _startRecording() async {
+  Future<void> _getDir() async {
     if (await Permission.microphone.request().isGranted) {
       final Directory appDocumentsDir =
           await getApplicationDocumentsDirectory();
@@ -85,7 +69,7 @@ class _VoiceRecorderUIState extends State<VoiceRecorderUI> {
           _stopTimer();
         }
       } else {
-        await _startRecording();
+        await _getDir();
         await _recorderController.record(path: path); // Path is optional
       }
     } catch (e) {
@@ -103,25 +87,6 @@ class _VoiceRecorderUIState extends State<VoiceRecorderUI> {
       ..androidOutputFormat = AndroidOutputFormat.mpeg4
       ..iosEncoder = IosEncoder.kAudioFormatMPEG4AAC
       ..sampleRate = 44100;
-  }
-
-  Future<void> _stopRecording() async {
-    final path = await _record.stop();
-    _recorderController.stop(false);
-    _startOrStopRecording();
-
-    MessageModel msg = MessageModel(
-      type: "mp3",
-      filePath: path,
-    );
-    final prefs =
-        Shared(sharedPreferences: await SharedPreferences.getInstance());
-    prefs.message = [msg];
-    _stopTimer();
-    setState(() {
-      _filePath = path;
-      _isRecording = false;
-    });
   }
 
   void _startTimer() {
@@ -258,24 +223,6 @@ class _VoiceRecorderUIState extends State<VoiceRecorderUI> {
                               ),
                             ),
                           )),
-                      // IconButton(
-                      //   icon: Icon(Icons.play_arrow),
-                      //   onPressed: _playRecording,
-                      //   color: Colors.green,
-                      //   iconSize: 36,
-                      // ),
-                      // IconButton(
-                      //   icon: Icon(Icons.delete),
-                      //   onPressed: _deleteRecording,
-                      //   color: Colors.red,
-                      //   iconSize: 36,
-                      // ),
-                      // IconButton(
-                      //   icon: Icon(Icons.send),
-                      //   onPressed: widget.onSend,
-                      //   color: Colors.red,
-                      //   iconSize: 36,
-                      // ),
                     ],
                   ),
                 ),

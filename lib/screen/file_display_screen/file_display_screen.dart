@@ -2,8 +2,14 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
+import 'package:talk_nest/model/message_model.dart';
+import 'package:talk_nest/service/getx.dart';
+import 'package:talk_nest/service/shared.dart';
 
 class FileDisplayScreen extends StatefulWidget {
   const FileDisplayScreen(
@@ -15,6 +21,8 @@ class FileDisplayScreen extends StatefulWidget {
 }
 
 class _FileDisplayScreenState extends State<FileDisplayScreen> {
+  final MessageController messageController = Get.put(MessageController());
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -73,16 +81,33 @@ class _FileDisplayScreenState extends State<FileDisplayScreen> {
                       ),
               ],
             ),
-            Padding(
-              padding: EdgeInsets.only(right: 3.w, top: 5.h),
-              child: CircleAvatar(
-                radius: 18.sp,
-                backgroundColor: Colors.grey.shade400,
-                child: Icon(
-                  Icons.send,
-                  size: 18.sp,
+            GestureDetector(
+              child: Padding(
+                padding: EdgeInsets.only(right: 3.w, top: 5.h),
+                child: CircleAvatar(
+                  radius: 18.sp,
+                  backgroundColor: Colors.grey.shade400,
+                  child: Icon(
+                    Icons.send,
+                    size: 18.sp,
+                  ),
                 ),
               ),
+              onTap: () async {
+                MessageModel msg = MessageModel(
+                  type: "png",
+                  filePath: widget.file.path,
+                  date: "${DateTime.now()}",
+                );
+                final prefs = Shared(
+                    sharedPreferences: await SharedPreferences.getInstance());
+                if (widget.file.path != null) {
+                  prefs.message = [msg];
+                  await messageController.addMessage();
+                  await messageController.setAudioPlayers();
+                  Navigator.pop(context);
+                }
+              },
             ),
           ],
         ),

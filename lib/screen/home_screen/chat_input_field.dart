@@ -1,22 +1,12 @@
-import 'dart:async';
 import 'dart:io';
-import 'package:audio_waveforms/audio_waveforms.dart';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:record/record.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:talk_nest/model/message_model.dart';
 import 'package:talk_nest/screen/file_display_screen/file_display_screen.dart';
-import 'package:path/path.dart' as p;
 import 'package:talk_nest/screen/home_screen/widget/voice_recorder_screen.dart';
 import 'package:talk_nest/service/getx.dart';
-import 'package:talk_nest/service/shared.dart';
 
 class ChatInputField extends StatefulWidget {
   const ChatInputField({super.key});
@@ -49,37 +39,6 @@ class _ChatInputFieldState extends State<ChatInputField> {
               });
             },
           )
-
-        // Container(
-        //   decoration: BoxDecoration(
-        //     color: Colors.white,
-        //     borderRadius: BorderRadius.circular(25),
-        //     boxShadow: [
-        //       BoxShadow(
-        //         color: Colors.grey,
-        //         blurRadius: 25,
-        //         offset: Offset(0, 4),
-        //       ),
-        //     ],
-        //   ),
-        //   child: Row(
-        //     children: [
-        //       Expanded(
-        //         child: Container(
-        //           height: 5.5.h,
-        //           decoration: BoxDecoration(
-        //               borderRadius: BorderRadius.circular(15),),
-        //           margin: EdgeInsets.symmetric(vertical: 1.h, horizontal: 2.w),
-        //           padding: EdgeInsets.only(left: 3.w, right: 3.w, bottom: 0.5.h),
-        //           child: Center(
-        //
-        //           ),
-        //         ),
-        //       ),
-        //
-        //     ],
-        //   ),
-        // )
         : Container(
             decoration: BoxDecoration(
               color: Colors.white,

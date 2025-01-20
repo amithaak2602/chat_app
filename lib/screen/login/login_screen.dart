@@ -67,7 +67,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty || value.length!=4) {
-                    return ("Password is required");
+                    return ("4 characters required");
                   }
                   return null;
                 },
